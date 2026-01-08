@@ -60,7 +60,7 @@ export async function listMarkets(params: {
   active?: boolean;
   order?: 'volume' | 'liquidity' | 'createdAt';
   order_dir?: 'asc' | 'desc';
-} = {}): Promise<{ markets: Market[] }> {
+} = {}): Promise<{ markets: any[] }> {
   const searchParams = new URLSearchParams();
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.offset) searchParams.set('offset', params.offset.toString());
@@ -76,7 +76,8 @@ export async function listMarkets(params: {
   }
 
   const data = await response.json();
-  return { markets: data.markets || [] };
+  // Gamma API returns an array directly, not wrapped in an object
+  return { markets: Array.isArray(data) ? data : [] };
 }
 
 /**

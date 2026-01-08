@@ -1,7 +1,7 @@
 services:
   kalshi-ts:
     build:
-      context: ./services/typescript
+      context: ./services/kalshi-ts
       dockerfile: Dockerfile
     container_name: kalshi-ts-service
     ports:
@@ -12,14 +12,14 @@ services:
       - KALSHI_BASE_URL=${KALSHI_BASE_URL:-https://api.elections.kalshi.com/trade-api/v2}
     volumes:
       - ./secrets:/app/secrets:ro
-      - ./services/typescript/src:/app/src:ro
+      - ./services/kalshi-ts/src:/app/src:ro
     restart: unless-stopped
     networks:
       - kalshi-net
 
   polymarket-service:
     build:
-      context: ./services/polymarket
+      context: ./services/polymarket-ts
       dockerfile: Dockerfile
     container_name: polymarket-service
     ports:
@@ -27,7 +27,7 @@ services:
     environment:
       - PORT=3001
     volumes:
-      - ./services/polymarket/src:/app/src:ro
+      - ./services/polymarket-ts/src:/app/src:ro
     restart: unless-stopped
     networks:
       - kalshi-net

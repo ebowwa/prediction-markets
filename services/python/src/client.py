@@ -1,34 +1,65 @@
 """
-Kalshi Python Client - Calls the TypeScript service for data
-Focuses on analysis, not API efficiency
+Unified Prediction Market Client
+Supports both Kalshi and Polymarket APIs
 """
 
 import os
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
+from enum import Enum
 
 import httpx
 
 
-@dataclass
-class KalshiClient:
-    """Python client for the Kalshi TypeScript service"""
+class MarketType(Enum):
+    KALSHI = "kalshi"
+    POLYMARKET = "polymarket"
 
-    base_url: str = "http://kalshi-ts:3000"
+
+@dataclass
+class PredictionMarketClient(ABC):
+    """Base class for prediction market clients"""
+
+    base_url: str
+    market_type: MarketType
 
     def __post_init__(self):
-        self.base_url = os.getenv("KALSHI_TS_URL", self.base_url)
+        env_var = f"{self.market_type.value.upper()}_TS_URL"
+        self.base_url = os.getenv(env_var, self.base_url)
         self.client = httpx.Client(timeout=30.0)
 
     def _request(self, method: str, path: str, **kwargs) -> dict[str, Any]:
-        """Make a request to the TS service"""
+        """Make a request to the API"""
         response = self.client.request(method, f"{self.base_url}{path}", **kwargs)
         response.raise_for_status()
         return response.json()
 
     def health(self) -> dict[str, Any]:
-        """Check if the TS service is healthy"""
+        """Check if the service is healthy"""
         return self._request("GET", "/")
+
+    @abstractmethod
+    def list_markets(self, limit: int = 50, **kwargs) -> dict[str, Any]:
+        """List markets with optional filters"""
+        pass
+
+    def close(self):
+        """Close the HTTP client"""
+        self.client.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+
+class KalshiClient(PredictionMarketClient):
+    """Client for Kalshi prediction markets"""
+
+    def __init__(self):
+        super().__init__(base_url="http://kalshi-ts:3000", market_type=MarketType.KALSHI)
 
     def get_balance(self) -> dict[str, Any]:
         """Get account balance"""
@@ -56,36 +87,12 @@ class KalshiClient:
         """Get exchange status"""
         return self._request("GET", "/api/exchange/status")
 
-    def close(self):
-        """Close the HTTP client"""
-        self.client.close()
 
-    def __enter__(self):
-        return self
+class PolymarketClient(PredictionMarketClient):
+    """Client for Polymarket prediction markets"""
 
-    def __exit__(self, *args):
-        self.close()
-
-
-@dataclass
-class PolymarketClient:
-    """Python client for the Polymarket TypeScript service"""
-
-    base_url: str = "http://polymarket-service:3001"
-
-    def __post_init__(self):
-        self.base_url = os.getenv("POLYMARKET_TS_URL", self.base_url)
-        self.client = httpx.Client(timeout=30.0)
-
-    def _request(self, method: str, path: str, **kwargs) -> dict[str, Any]:
-        """Make a request to the TS service"""
-        response = self.client.request(method, f"{self.base_url}{path}", **kwargs)
-        response.raise_for_status()
-        return response.json()
-
-    def health(self) -> dict[str, Any]:
-        """Check if the service is healthy"""
-        return self._request("GET", "/")
+    def __init__(self):
+        super().__init__(base_url="http://polymarket-service:3001", market_type=MarketType.POLYMARKET)
 
     def list_markets(
         self,
@@ -156,18 +163,11 @@ class PolymarketClient:
         return self._request("GET", f"/api/positions/{wallet_address}")
 
     def get_wallet_trades(
-        self, wallet_address: str, limit: int = 100, offset: int = 0
+        self,
+        wallet_address: str,
+        limit: int = 100,
+        offset: int = 0,
     ) -> dict[str, Any]:
         """Get public trade history for a wallet address"""
         params = {"limit": limit, "offset": offset}
         return self._request("GET", f"/api/wallet-trades/{wallet_address}", params=params)
-
-    def close(self):
-        """Close the HTTP client"""
-        self.client.close()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self.close()

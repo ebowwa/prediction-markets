@@ -137,7 +137,7 @@ Open `http://localhost:8888` in your browser.
 ## Project Structure
 
 ```
-kalshi-api-explorer/
+prediction-markets/
 ├── services/
 │   ├── typescript/          # Kalshi feed handler
 │   │   ├── src/

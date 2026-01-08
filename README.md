@@ -116,12 +116,12 @@ python src/polymarket_demo.py  # Polymarket demo
 
 ```bash
 # Kalshi service
-cd services/typescript
+cd services/kalshi-ts
 npm install
 npm run dev
 
 # Polymarket service
-cd services/polymarket
+cd services/polymarket-ts
 npm install
 npm run dev
 ```
@@ -139,21 +139,21 @@ Open `http://localhost:8888` in your browser.
 ```
 prediction-markets/
 ├── services/
-│   ├── typescript/          # Kalshi feed handler
+│   ├── kalshi-ts/            # Kalshi TypeScript service
 │   │   ├── src/
 │   │   │   ├── config.ts
 │   │   │   ├── kalshi.client.ts
 │   │   │   └── server.ts
 │   │   ├── Dockerfile
 │   │   └── package.json
-│   ├── polymarket/          # Polymarket service
+│   ├── polymarket-ts/        # Polymarket TypeScript service
 │   │   ├── src/
 │   │   │   ├── polymarket.client.ts
 │   │   │   ├── server.ts
 │   │   │   └── index.ts
 │   │   ├── Dockerfile
 │   │   └── package.json
-│   └── python/              # Unified analysis client
+│   └── python/              # Unified analysis client (both platforms)
 │       ├── src/
 │       │   ├── client.py    # KalshiClient + PolymarketClient
 │       │   ├── analysis.py

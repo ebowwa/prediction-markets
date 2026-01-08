@@ -164,9 +164,11 @@ prediction-markets/
 │       └── Dockerfile
 ├── secrets/                 # Kalshi API credentials (gitignored)
 ├── docker-compose.yml
-├── PLATFORM-COMPARISON.md   # Kalshi vs Polymarket
-├── PARTICIPANTS.md          # Market participant visibility
-├── POLYMARKET.md            # Polymarket integration docs
+├── docs/
+│   ├── CONTRIBUTING.md
+│   ├── PLATFORM-COMPARISON.md   # Kalshi vs Polymarket
+│   ├── PARTICIPANTS.md          # Market participant visibility
+│   └── POLYMARKET.md            # Polymarket integration docs
 └── README.md
 ```
 
@@ -201,9 +203,10 @@ Total: ~180MB for full stack
 
 ## Documentation
 
-- **[Platform Comparison](PLATFORM-COMPARISON.md)** - Kalshi vs Polymarket philosophies
-- **[Participant Visibility](PARTICIPANTS.md)** - What market data is available
-- **[Polymarket Integration](POLYMARKET.md)** - Polymarket API details
+- **[Platform Comparison](docs/PLATFORM-COMPARISON.md)** - Kalshi vs Polymarket philosophies
+- **[Participant Visibility](docs/PARTICIPANTS.md)** - What market data is available
+- **[Polymarket Integration](docs/POLYMARKET.md)** - Polymarket API details
+- **[Contributing](docs/CONTRIBUTING.md)** - How to contribute
 
 ## License
 

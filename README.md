@@ -1,21 +1,25 @@
-# Kalshi API Explorer
+# Prediction Market API Explorer
 
-Hybrid architecture for efficient Kalshi API interaction with Python analysis capabilities.
+Hybrid architecture for efficient prediction market API interaction with Python analysis capabilities.
+
+**Platforms:** Kalshi + Polymarket
 
 ## Architecture
 
 ```
-┌─────────────────┐         ┌─────────────────┐
-│   Python        │ ◄─────► │   TypeScript    │
-│                 │  HTTP   │                 │
-│ • pandas        │         │ • ~60MB RAM     │
-│ • numpy        │         │ • Kalshi SDK    │
-│ • backtesting  │         │ • REST API      │
-└─────────────────┘         └─────────────────┘
+┌─────────────────┐         ┌─────────────────────────────┐
+│   Python        │ ◄─────► │   TypeScript Services       │
+│                 │  HTTP   │                             │
+│ • pandas        │         │ ┌─────────┬────────────────┐ │
+│ • numpy        │         │ │ Kalshi  │  Polymarket    │ │
+│ • backtesting  │         │ │ :3000   │  :3001         │ │
+│ • comparison   │         │ │ RSA     │  No Auth       │ │
+└─────────────────┘         │ └─────────┴────────────────┘ │
+                            └─────────────────────────────┘
 ```
 
-**TypeScript Service:** Efficient feed handler, minimal memory footprint
-**Python Client:** Data analysis, backtesting, strategy development
+**TypeScript Services:** Efficient API handlers, minimal memory footprint
+**Python Client:** Data analysis, cross-platform comparison, backtesting
 
 ## Quick Start with OrbStack
 
@@ -44,37 +48,80 @@ orb-compose up --build
 ### 4. View logs
 
 ```bash
-# TypeScript service
+# Kalshi TypeScript service
 orb-compose logs -f kalshi-ts
+
+# Polymarket service (no API key needed!)
+orb-compose logs -f polymarket-service
 
 # Python client
 orb-compose logs -f kalshi-python
 ```
 
-## API Endpoints (TypeScript Service)
+## API Endpoints
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /` | Health check |
-| `GET /api/balance` | Account balance |
-| `GET /api/markets` | List markets |
-| `GET /api/markets/:id` | Get specific market |
-| `GET /api/exchange/status` | Exchange status |
+### Kalshi Service (Port 3000)
+
+| Endpoint | Description | Auth |
+|----------|-------------|------|
+| `GET /` | Health check | ✅ |
+| `GET /api/balance` | Account balance | ✅ |
+| `GET /api/markets` | List markets | ✅ |
+| `GET /api/markets/:ticker` | Get specific market | ✅ |
+| `GET /api/orders` | List orders | ✅ |
+
+### Polymarket Service (Port 3001)
+
+| Endpoint | Description | Auth |
+|----------|-------------|------|
+| `GET /` | Health check | ❌ |
+| `GET /api/markets` | List markets | ❌ |
+| `GET /api/profiles/:wallet` | **Public profile (P/L, volume!)** | ❌ |
+| `GET /api/positions/:wallet` | **Public positions** | ❌ |
+| `GET /api/wallet-trades/:wallet` | **Public trade history** | ❌ |
 
 ## Usage Examples
+
+### Cross-Platform Analysis
+
+```python
+from client import KalshiClient, PolymarketClient
+
+with KalshiClient() as kalshi, PolymarketClient() as poly:
+    # Kalshi: Requires API key
+    kalshi_markets = kalshi.list_markets(limit=50)
+
+    # Polymarket: No API key needed!
+    poly_markets = poly.list_markets(limit=50)
+
+    # Compare liquidity
+    print(f"Kalshi markets: {len(kalshi_markets['data']['markets'])}")
+    print(f"Polymarket markets: {len(poly_markets['data']['markets'])}")
+
+    # Get public profile (Polymarket only!)
+    profile = poly.get_profile("0x0afc7ce56285bde1fbe3a75efaffdfc86d6530b2")
+    print(f"Public P/L: ${profile['data']['profile'].get('profit_loss', 0):,.2f}")
+```
 
 ### Direct Python (without Docker)
 
 ```bash
 cd services/python
 uv pip install -e .
-python src/main.py
+python src/main.py           # Kalshi demo
+python src/polymarket_demo.py  # Polymarket demo
 ```
 
-### TypeScript Service (local dev)
+### TypeScript Services (local dev)
 
 ```bash
+# Kalshi service
 cd services/typescript
+npm install
+npm run dev
+
+# Polymarket service
+cd services/polymarket
 npm install
 npm run dev
 ```
@@ -92,34 +139,71 @@ Open `http://localhost:8888` in your browser.
 ```
 kalshi-api-explorer/
 ├── services/
-│   ├── typescript/          # Feed handler service
+│   ├── typescript/          # Kalshi feed handler
 │   │   ├── src/
 │   │   │   ├── config.ts
 │   │   │   ├── kalshi.client.ts
 │   │   │   └── server.ts
 │   │   ├── Dockerfile
 │   │   └── package.json
-│   └── python/              # Analysis client
+│   ├── polymarket/          # Polymarket service
+│   │   ├── src/
+│   │   │   ├── polymarket.client.ts
+│   │   │   ├── server.ts
+│   │   │   └── index.ts
+│   │   ├── Dockerfile
+│   │   └── package.json
+│   └── python/              # Unified analysis client
 │       ├── src/
-│       │   ├── client.py
+│       │   ├── client.py    # KalshiClient + PolymarketClient
 │       │   ├── analysis.py
-│       │   └── main.py
+│       │   ├── main.py
+│       │   └── polymarket_demo.py
 │       ├── notebooks/
 │       │   └── analysis.ipynb
 │       └── Dockerfile
-├── secrets/                 # API credentials (gitignored)
+├── secrets/                 # Kalshi API credentials (gitignored)
 ├── docker-compose.yml
+├── PLATFORM-COMPARISON.md   # Kalshi vs Polymarket
+├── PARTICIPANTS.md          # Market participant visibility
+├── POLYMARKET.md            # Polymarket integration docs
 └── README.md
 ```
 
 ## Resource Efficiency
 
-| Service | Memory | Purpose |
-|---------|--------|---------|
-| TypeScript | ~60MB | API calls, streaming |
-| Python | ~80MB | Data analysis, backtesting |
+| Service | Memory | Auth Required |
+|---------|--------|---------------|
+| Kalshi TS | ~60MB | ✅ RSA key |
+| Polymarket TS | ~40MB | ❌ None |
+| Python | ~80MB | Varies |
 
-Total: ~140MB for full stack
+Total: ~180MB for full stack
+
+## Key Differences
+
+### Data Visibility
+
+| Data | Kalshi | Polymarket |
+|------|--------|------------|
+| Market prices | ✅ Public | ✅ Public |
+| User P/L | ❌ Private | ✅ **Public by wallet** |
+| User positions | ❌ Private | ✅ **Public by wallet** |
+| User trades | ❌ Private | ✅ **Public by wallet** |
+
+### API Design
+
+| Aspect | Kalshi | Polymarket |
+|--------|--------|------------|
+| Authentication | RSA key | **None for public data** |
+| Rate limits | Strict | Lenient |
+| Real-time | WebSocket (auth) | WebSocket (public) |
+
+## Documentation
+
+- **[Platform Comparison](PLATFORM-COMPARISON.md)** - Kalshi vs Polymarket philosophies
+- **[Participant Visibility](PARTICIPANTS.md)** - What market data is available
+- **[Polymarket Integration](POLYMARKET.md)** - Polymarket API details
 
 ## License
 

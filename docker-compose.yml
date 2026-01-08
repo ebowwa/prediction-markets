@@ -17,6 +17,21 @@ services:
     networks:
       - kalshi-net
 
+  polymarket-service:
+    build:
+      context: ./services/polymarket
+      dockerfile: Dockerfile
+    container_name: polymarket-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    volumes:
+      - ./services/polymarket/src:/app/src:ro
+    restart: unless-stopped
+    networks:
+      - kalshi-net
+
   kalshi-python:
     build:
       context: ./services/python
@@ -24,11 +39,13 @@ services:
     container_name: kalshi-python-client
     environment:
       - KALSHI_TS_URL=http://kalshi-ts:3000
+      - POLYMARKET_TS_URL=http://polymarket-service:3001
     volumes:
       - ./services/python/src:/app/src:ro
       - ./services/python/notebooks:/app/notebooks
     depends_on:
       - kalshi-ts
+      - polymarket-service
     networks:
       - kalshi-net
     stdin_open: true

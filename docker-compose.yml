@@ -1,0 +1,39 @@
+services:
+  kalshi-ts:
+    build:
+      context: ./services/typescript
+      dockerfile: Dockerfile
+    container_name: kalshi-ts-service
+    ports:
+      - "3000:3000"
+    environment:
+      - KALSHI_API_KEY_ID=${KALSHI_API_KEY_ID}
+      - KALSHI_PRIVATE_KEY_PATH=/app/secrets/private_key.pem
+      - KALSHI_BASE_URL=${KALSHI_BASE_URL:-https://api.elections.kalshi.com/trade-api/v2}
+    volumes:
+      - ./secrets:/app/secrets:ro
+      - ./services/typescript/src:/app/src:ro
+    restart: unless-stopped
+    networks:
+      - kalshi-net
+
+  kalshi-python:
+    build:
+      context: ./services/python
+      dockerfile: Dockerfile
+    container_name: kalshi-python-client
+    environment:
+      - KALSHI_TS_URL=http://kalshi-ts:3000
+    volumes:
+      - ./services/python/src:/app/src:ro
+      - ./services/python/notebooks:/app/notebooks
+    depends_on:
+      - kalshi-ts
+    networks:
+      - kalshi-net
+    stdin_open: true
+    tty: true
+
+networks:
+  kalshi-net:
+    driver: bridge

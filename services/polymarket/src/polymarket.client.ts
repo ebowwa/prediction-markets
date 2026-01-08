@@ -102,7 +102,7 @@ export async function listEvents(params: {
   archived?: boolean;
   closed?: boolean;
   tag_id?: string;
-} = {}): Promise<{ events: Event[] }> {
+} = {}): Promise<{ events: any[] }> {
   const searchParams = new URLSearchParams();
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.offset) searchParams.set('offset', params.offset.toString());
@@ -116,7 +116,8 @@ export async function listEvents(params: {
   }
 
   const data = await response.json();
-  return { events: data.events || [] };
+  // Gamma API returns an array directly, not wrapped in an object
+  return { events: Array.isArray(data) ? data : [] };
 }
 
 /**

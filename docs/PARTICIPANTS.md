@@ -152,10 +152,12 @@ probability_history = [
 
 | Market | Shows Individual Traders? | Reason |
 |--------|---------------------------|---------|
-| **Kalshi** | ❌ No | Privacy/fairness |
-| **Polymarket** | ❌ No | Privacy/fairness |
+| **Kalshi** | ❌ No | Private accounts, hidden positions |
+| **Polymarket** | ✅ Yes | Public profiles, visible P/L by wallet |
 | **Stock Market** | ✅ Yes | Level 2 data (for a fee) |
-| **Prediction Market** | ❌ No | Core design principle |
+| **Prediction Market** | Varies | Design philosophy dependent |
+
+**Note:** This document focuses on Kalshi's anonymity model. Polymarket takes a different approach with public user profiles. See [PLATFORM-COMPARISON.md](PLATFORM-COMPARISON.md) for a detailed comparison. |
 
 ---
 

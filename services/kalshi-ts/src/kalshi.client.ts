@@ -5,13 +5,13 @@
 
 import {
   PortfolioApi,
-  MarketApi,
-  MarketsApi,
   ExchangeApi,
   OrdersApi,
   EventsApi,
-  SeriesApi,
 } from 'kalshi-typescript';
+import { MarketsApi } from 'kalshi-typescript/dist/api/markets-api';
+import { SeriesApi } from 'kalshi-typescript/dist/api/series-api';
+import { MarketApi } from 'kalshi-typescript/dist/api/market-api';
 import { config } from './config.js';
 
 // Initialize all Kalshi API clients
@@ -70,11 +70,10 @@ export async function listMarkets(params: {
       params.cursor,
       params.eventTicker,
       params.seriesTicker,
-      undefined, undefined,
       params.maxCloseTs,
       params.minCloseTs,
-      undefined, undefined,
-      params.status as any,
+      params.status,
+      undefined,
     );
     return {
       markets: response.data.markets || [],
@@ -103,9 +102,9 @@ export async function getMarketTrades(params: {
 }) {
   try {
     const response = await marketApi.getTrades(
-      params.ticker,
       params.limit || 100,
       params.cursor,
+      params.ticker,
     );
     return {
       trades: response.data.trades || [],
@@ -173,13 +172,13 @@ export async function listOrders(params: {
 }) {
   try {
     const response = await ordersApi.getOrders(
-      params.limit || 100,
-      params.cursor,
       params.marketTicker,
       params.eventTicker,
-      params.seriesTicker,
-      undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+      undefined,
+      undefined,
       params.status,
+      params.limit || 100,
+      params.cursor,
     );
     return {
       orders: response.data.orders || [],
@@ -249,10 +248,8 @@ export async function listEvents(params: {
       params.limit || 50,
       params.cursor,
       undefined,
-      params.category,
       undefined,
-      undefined, undefined, undefined, undefined, undefined, undefined,
-      params.status,
+      params.status as any,
       undefined,
       undefined,
     );
@@ -286,19 +283,9 @@ export async function listSeries(params: {
   category?: string;
 }) {
   try {
-    const response = await seriesApi.getSeriesList(
-      params.limit || 50,
-      params.cursor,
-      undefined,
-      params.category,
-      undefined,
-      undefined, undefined,
-      undefined,
-      undefined,
-    );
+    const response = await seriesApi.getSeries();
     return {
       series: response.data.series || [],
-      cursor: response.data.cursor,
     };
   } catch (error: any) {
     console.error('Failed to list series:', error.response?.data || error.message);

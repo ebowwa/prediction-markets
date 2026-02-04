@@ -191,6 +191,16 @@ export async function listOrders(params: {
   }
 }
 
+export async function getOrder(orderId: string) {
+  try {
+    const response = await ordersApi.getOrder(orderId);
+    return { order: response.data.order };
+  } catch (error: any) {
+    console.error(`Failed to fetch order ${orderId}:`, error.response?.data || error.message);
+    throw error;
+  }
+}
+
 export async function amendOrder(params: {
   orderId: string;
   count?: number;

@@ -1,25 +1,23 @@
 # Prediction Market API Explorer
 
-Hybrid architecture for efficient prediction market API interaction with Python analysis capabilities.
+TypeScript services for efficient prediction market API interaction.
 
 **Platforms:** Kalshi + Polymarket
 
 ## Architecture
 
 ```
-┌─────────────────┐         ┌─────────────────────────────┐
-│   Python        │ ◄─────► │   TypeScript Services       │
-│                 │  HTTP   │                             │
-│ • pandas        │         │ ┌─────────┬────────────────┐ │
-│ • numpy        │         │ │ Kalshi  │  Polymarket    │ │
-│ • backtesting  │         │ │ :3000   │  :3001         │ │
-│ • comparison   │         │ │ RSA     │  No Auth       │ │
-└─────────────────┘         │ └─────────┴────────────────┘ │
-                            └─────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    TypeScript Services                       │
+│  ┌─────────────┐                  ┌──────────────────────┐  │
+│  │   Kalshi    │                  │     Polymarket       │  │
+│  │   :3000     │                  │       :3001          │  │
+│  │   RSA Auth  │                  │      No Auth         │  │
+│  └─────────────┘                  └──────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 **TypeScript Services:** Efficient API handlers, minimal memory footprint
-**Python Client:** Data analysis, cross-platform comparison, backtesting
 
 ## Quick Start with OrbStack
 
@@ -53,9 +51,6 @@ orb-compose logs -f kalshi-ts
 
 # Polymarket service (no API key needed!)
 orb-compose logs -f polymarket-service
-
-# Python client
-orb-compose logs -f kalshi-python
 ```
 
 ## API Endpoints
@@ -68,7 +63,17 @@ orb-compose logs -f kalshi-python
 | `GET /api/balance` | Account balance | ✅ |
 | `GET /api/markets` | List markets | ✅ |
 | `GET /api/markets/:ticker` | Get specific market | ✅ |
+| `GET /api/markets/:ticker/orderbook` | Market orderbook | ✅ |
+| `GET /api/markets/:ticker/trades` | Market trades history | ✅ |
 | `GET /api/orders` | List orders | ✅ |
+| `POST /api/orders` | Create order | ✅ |
+| `DELETE /api/orders/:id` | Cancel order | ✅ |
+| `PUT /api/orders/:id` | Amend order | ✅ |
+| `GET /api/events` | List events | ✅ |
+| `GET /api/events/:ticker` | Get specific event | ✅ |
+| `GET /api/series` | List series | ✅ |
+| `GET /api/series/:ticker` | Get specific series | ✅ |
+| `GET /api/exchange/status` | Exchange status | ✅ |
 
 ### Polymarket Service (Port 3001)
 
@@ -76,40 +81,30 @@ orb-compose logs -f kalshi-python
 |----------|-------------|------|
 | `GET /` | Health check | ❌ |
 | `GET /api/markets` | List markets | ❌ |
+| `GET /api/markets/:conditionId` | Get specific market | ❌ |
+| `GET /api/events` | List events | ❌ |
+| `GET /api/events/:slug` | Get specific event | ❌ |
 | `GET /api/profiles/:wallet` | **Public profile (P/L, volume!)** | ❌ |
 | `GET /api/positions/:wallet` | **Public positions** | ❌ |
 | `GET /api/wallet-trades/:wallet` | **Public trade history** | ❌ |
+| `GET /api/search` | Search markets | ❌ |
+| `GET /api/orderbook/:tokenId` | Order book | ❌ |
+| `GET /api/trades/:tokenId` | Trades history | ❌ |
+| `GET /api/price/:tokenId` | Current price | ❌ |
 
 ## Usage Examples
 
-### Cross-Platform Analysis
-
-```python
-from client import KalshiClient, PolymarketClient
-
-with KalshiClient() as kalshi, PolymarketClient() as poly:
-    # Kalshi: Requires API key
-    kalshi_markets = kalshi.list_markets(limit=50)
-
-    # Polymarket: No API key needed!
-    poly_markets = poly.list_markets(limit=50)
-
-    # Compare liquidity
-    print(f"Kalshi markets: {len(kalshi_markets['data']['markets'])}")
-    print(f"Polymarket markets: {len(poly_markets['data']['markets'])}")
-
-    # Get public profile (Polymarket only!)
-    profile = poly.get_profile("0x0afc7ce56285bde1fbe3a75efaffdfc86d6530b2")
-    print(f"Public P/L: ${profile['data']['profile'].get('profit_loss', 0):,.2f}")
-```
-
-### Direct Python (without Docker)
+### Using curl
 
 ```bash
-cd services/python
-uv pip install -e .
-python src/main.py           # Kalshi demo
-python src/polymarket_demo.py  # Polymarket demo
+# Kalshi: Requires API key and private key
+curl http://localhost:3000/api/markets
+
+# Polymarket: No API key needed!
+curl http://localhost:3001/api/markets
+
+# Get public profile (Polymarket only!)
+curl http://localhost:3001/api/profiles/0x0afc7ce56285bde1fbe3a75efaffdfc86d6530b2
 ```
 
 ### TypeScript Services (local dev)
@@ -117,22 +112,14 @@ python src/polymarket_demo.py  # Polymarket demo
 ```bash
 # Kalshi service
 cd services/kalshi-ts
-npm install
-npm run dev
+bun install
+bun run dev
 
 # Polymarket service
 cd services/polymarket-ts
-npm install
-npm run dev
+bun install
+bun run dev
 ```
-
-### Jupyter Notebook
-
-```bash
-orb-compose run kalshi-python jupyter notebook --ip 0.0.0.0 --port 8888
-```
-
-Open `http://localhost:8888` in your browser.
 
 ## Project Structure
 
@@ -143,26 +130,18 @@ prediction-markets/
 │   │   ├── src/
 │   │   │   ├── config.ts
 │   │   │   ├── kalshi.client.ts
-│   │   │   └── server.ts
-│   │   ├── Dockerfile
-│   │   └── package.json
-│   ├── polymarket-ts/        # Polymarket TypeScript service
-│   │   ├── src/
-│   │   │   ├── polymarket.client.ts
 │   │   │   ├── server.ts
 │   │   │   └── index.ts
 │   │   ├── Dockerfile
 │   │   └── package.json
-│   └── python/              # Unified analysis client (both platforms)
+│   └── polymarket-ts/        # Polymarket TypeScript service
 │       ├── src/
-│       │   ├── client.py    # KalshiClient + PolymarketClient
-│       │   ├── analysis.py
-│       │   ├── main.py
-│       │   └── polymarket_demo.py
-│       ├── notebooks/
-│       │   └── analysis.ipynb
-│       └── Dockerfile
-├── secrets/                 # Kalshi API credentials (gitignored)
+│       │   ├── polymarket.client.ts
+│       │   ├── server.ts
+│       │   └── index.ts
+│       ├── Dockerfile
+│       └── package.json
+├── secrets/                  # Kalshi API credentials (gitignored)
 ├── docker-compose.yml
 ├── docs/
 │   ├── CONTRIBUTING.md
@@ -178,9 +157,8 @@ prediction-markets/
 |---------|--------|---------------|
 | Kalshi TS | ~60MB | ✅ RSA key |
 | Polymarket TS | ~40MB | ❌ None |
-| Python | ~80MB | Varies |
 
-Total: ~180MB for full stack
+Total: ~100MB
 
 ## Key Differences
 

@@ -1,6 +1,6 @@
 # Prediction Market API Explorer
 
-TypeScript services for efficient prediction market API interaction.
+TypeScript services for efficient prediction market API interaction powered by Bun.
 
 **Platforms:** Kalshi + Polymarket
 
@@ -8,7 +8,7 @@ TypeScript services for efficient prediction market API interaction.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    TypeScript Services                       │
+│                    Bun + TypeScript                         │
 │  ┌─────────────┐                  ┌──────────────────────┐  │
 │  │   Kalshi    │                  │     Polymarket       │  │
 │  │   :3000     │                  │       :3001          │  │
@@ -17,7 +17,7 @@ TypeScript services for efficient prediction market API interaction.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**TypeScript Services:** Efficient API handlers, minimal memory footprint
+**Powered by Bun:** All-in-one runtime, package manager, test runner, and bundler
 
 ## Quick Start with OrbStack
 
@@ -46,11 +46,45 @@ orb-compose up --build
 ### 4. View logs
 
 ```bash
-# Kalshi TypeScript service
+# Kalshi service
 orb-compose logs -f kalshi-ts
 
 # Polymarket service (no API key needed!)
 orb-compose logs -f polymarket-service
+```
+
+## Local Development with Bun
+
+### Prerequisites
+
+```bash
+# Install Bun (macOS/Linux)
+curl -fsSL https://bun.sh/install | bash
+
+# Or with Homebrew
+brew install oven-sh/bun/bun
+```
+
+### Kalshi Service
+
+```bash
+cd services/kalshi-ts
+bun install
+bun run dev       # Hot reload enabled
+bun run build     # Minified production build
+bun run test      # Run tests
+bun run typecheck # TypeScript type checking
+```
+
+### Polymarket Service
+
+```bash
+cd services/polymarket-ts
+bun install
+bun run dev       # Hot reload enabled
+bun run build     # Minified production build
+bun run test      # Run tests
+bun run typecheck # TypeScript type checking
 ```
 
 ## API Endpoints
@@ -107,20 +141,6 @@ curl http://localhost:3001/api/markets
 curl http://localhost:3001/api/profiles/0x0afc7ce56285bde1fbe3a75efaffdfc86d6530b2
 ```
 
-### TypeScript Services (local dev)
-
-```bash
-# Kalshi service
-cd services/kalshi-ts
-bun install
-bun run dev
-
-# Polymarket service
-cd services/polymarket-ts
-bun install
-bun run dev
-```
-
 ## Project Structure
 
 ```
@@ -133,21 +153,24 @@ prediction-markets/
 │   │   │   ├── server.ts
 │   │   │   └── index.ts
 │   │   ├── Dockerfile
-│   │   └── package.json
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   └── polymarket-ts/        # Polymarket TypeScript service
 │       ├── src/
 │       │   ├── polymarket.client.ts
 │       │   ├── server.ts
 │       │   └── index.ts
 │       ├── Dockerfile
-│       └── package.json
+│       ├── package.json
+│       └── tsconfig.json
+├── bunfig.toml               # Bun configuration
 ├── secrets/                  # Kalshi API credentials (gitignored)
 ├── docker-compose.yml
 ├── docs/
 │   ├── CONTRIBUTING.md
-│   ├── PLATFORM-COMPARISON.md   # Kalshi vs Polymarket
-│   ├── PARTICIPANTS.md          # Market participant visibility
-│   └── POLYMARKET.md            # Polymarket integration docs
+│   ├── PLATFORM-COMPARISON.md
+│   ├── PARTICIPANTS.md
+│   └── POLYMARKET.md
 └── README.md
 ```
 
@@ -155,10 +178,19 @@ prediction-markets/
 
 | Service | Memory | Auth Required |
 |---------|--------|---------------|
-| Kalshi TS | ~60MB | ✅ RSA key |
-| Polymarket TS | ~40MB | ❌ None |
+| Kalshi TS | ~50MB | ✅ RSA key |
+| Polymarket TS | ~35MB | ❌ None |
 
-Total: ~100MB
+Total: ~85MB (Bun runtime is lighter than Node)
+
+## Bun Features Used
+
+- **Package Manager:** Fast installs with `bun.lock`
+- **Runtime:** Optimized JavaScript/TypeScript execution
+- **Bundler:** Production builds with tree-shaking and minification
+- **Test Runner:** Built-in test framework (`bun test`)
+- **Hot Reload:** `bun --hot` for development
+- **TypeScript:** Native TS support with no build step for dev
 
 ## Key Differences
 

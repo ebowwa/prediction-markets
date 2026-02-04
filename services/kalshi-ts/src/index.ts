@@ -1,4 +1,3 @@
-import { serve } from '@hono/node-server';
 import { getApp } from './server.js';
 
 const port = parseInt(process.env.PORT || '3000');
@@ -6,14 +5,15 @@ const port = parseInt(process.env.PORT || '3000');
 console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║           Kalshi TypeScript Service                        ║
+║           Powered by Bun                                    ║
 ║                                                              ║
 ║  ✓ Efficient feed handler for Kalshi API                   ║
 ║  ✓ Endpoints for balance, markets, exchange status         ║
-║  ✓ Ready for Python client integration                     ║
+║  ✓ Bun native server for max performance                   ║
 ╚════════════════════════════════════════════════════════════╝
 `);
 
-serve({
+Bun.serve({
   fetch: getApp().fetch,
   port,
 });

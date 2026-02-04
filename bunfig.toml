@@ -1,0 +1,27 @@
+# Bun configuration for prediction-markets project
+[install]
+# Cache configuration for faster installs
+cache = true
+# Use silent mode for cleaner output
+silent = false
+
+[build]
+# Target Bun runtime for optimal performance
+target = "bun"
+# Enable minification in production
+minify = true
+minifyWhitespace = true
+minifyIdentifiers = true
+minifySyntax = true
+# Generate external source maps for debugging
+sourcemap = "external"
+# Enable tree shaking to eliminate unused code
+treeShaking = true
+
+[test]
+# Enable coverage reporting
+coverage = true
+
+[run]
+# Shell to use for Bun.$ shell commands
+shell = "/bin/zsh"

@@ -1,14 +1,25 @@
-FROM node:22-alpine AS build
+FROM oven/bun:1-alpine AS build
 WORKDIR /app
-COPY package.json ./
-RUN npm install
-COPY . .
-RUN npm run build
 
-FROM node:22-alpine
+# Install dependencies
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile
+
+# Copy source and build
+COPY . .
+RUN bun run build
+
+# Production stage - use slim Bun image
+FROM oven/bun:1-alpine
 WORKDIR /app
+
+# Copy built files and dependencies
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
+
+# Expose port
 EXPOSE 3000
-CMD ["node", "dist/index.js"]
+
+# Run with Bun for optimal performance
+CMD ["bun", "dist/index.js"]

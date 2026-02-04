@@ -3,17 +3,20 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "dev": "bun --hot src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun build src/index.ts --outdir ./dist --minify --sourcemap=external",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
     "@polymarket/clob-client": "^2.0.0",
     "hono": "^4.6.12"
   },
   "devDependencies": {
-    "@types/node": "^22.19.3",
+    "@types/bun": "latest",
     "typescript": "^5.7.2"
-  }
+  },
+  "trustDependencies": true
 }

@@ -139,7 +139,8 @@ app.get('/api/markets/:ticker', async (c) => {
 app.get('/api/markets/:ticker/orderbook', async (c) => {
   try {
     const ticker = c.req.param('ticker');
-    const depth = c.req.query('depth') ? parseInt(c.req.query('depth')) : undefined;
+    const depthStr = c.req.query('depth');
+    const depth = depthStr ? parseInt(depthStr, 10) : undefined;
     const result = await getMarketOrderbook(ticker, depth);
     return c.json({ success: true, data: result });
   } catch (error: any) {

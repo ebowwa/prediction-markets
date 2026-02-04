@@ -6,10 +6,12 @@
 secrets/*
 !secrets/.gitkeep
 
-# Node
+# Node/Bun
 node_modules/
 dist/
 *.log
+bun.lockb
+bun.lock
 
 # Jupyter
 .ipynb_checkpoints/

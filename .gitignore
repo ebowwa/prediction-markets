@@ -6,15 +6,6 @@
 secrets/*
 !secrets/.gitkeep
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
-venv/
-*.egg-info/
-.pytest_cache/
-
 # Node
 node_modules/
 dist/

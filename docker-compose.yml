@@ -32,25 +32,6 @@ services:
     networks:
       - kalshi-net
 
-  kalshi-python:
-    build:
-      context: ./services/python
-      dockerfile: Dockerfile
-    container_name: kalshi-python-client
-    environment:
-      - KALSHI_TS_URL=http://kalshi-ts:3000
-      - POLYMARKET_TS_URL=http://polymarket-service:3001
-    volumes:
-      - ./services/python/src:/app/src:ro
-      - ./services/python/notebooks:/app/notebooks
-    depends_on:
-      - kalshi-ts
-      - polymarket-service
-    networks:
-      - kalshi-net
-    stdin_open: true
-    tty: true
-
 networks:
   kalshi-net:
     driver: bridge
